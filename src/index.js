@@ -22,38 +22,31 @@ const server = new Server(
 );
 
 // Configuration
-const OBSIDIAN_VAULT_PATH = '/Users/bard/Obsidian/bard';
+const OBSIDIAN_VAULT_PATH = '/Users/bard/Code/claude-brain/data/BrainVault';
 const ARCHITECTURE_FOLDER = path.join(OBSIDIAN_VAULT_PATH, 'Architecture');
 
-// Architecture document registry
+// CORRECTED Architecture document registry - removed missing documents
 const ARCHITECTURAL_DOCS = {
   'master-architecture-index': {
     path: 'Architecture/Master Architecture Index.md',
     title: 'Master Architecture Index',
     type: 'index',
-    keywords: ['architecture', 'systems', 'overview', 'index', 'master'],
-    description: 'Central registry of all architectural systems and their documentation'
-  },
-  'project-catalogue': {
-    path: 'Architecture/📁 Project Catalogue - Master Index.md',
-    title: 'Master Project Catalogue',
-    type: 'catalogue',
-    keywords: ['projects', 'catalogue', 'discovery', 'navigation', 'index'],
-    description: 'Comprehensive directory of all projects with searchable details'
-  },
-  'gentle-reminders': {
-    path: 'Architecture/🔔 Gentle Reminder Integration Guide.md',
-    title: 'Gentle Reminder Integration Guide',
-    type: 'guide',
-    keywords: ['reminders', 'behavioral', 'gentle', 'guidance', 'integration'],
-    description: 'Behavioral guidance system for reinforcing good knowledge management practices'
+    keywords: ['architecture', 'systems', 'overview', 'index', 'master', 'integration', 'ecosystem'],
+    description: 'Central registry of all architectural systems with complete integration status'
   },
   'protocols-index': {
     path: 'protocols/Master Protocol Index.md',
     title: 'Master Protocol Index',
     type: 'protocols',
-    keywords: ['protocols', 'operational', 'procedures', 'workflows'],
-    description: 'Registry of all operational and system protocols'
+    keywords: ['protocols', 'operational', 'procedures', 'workflows', 'foundation'],
+    description: 'Registry of all operational and system protocols with foundation protocol coverage'
+  },
+  'architecture-server-docs': {
+    path: 'Architecture/MCP Architecture Server Documentation.md',
+    title: 'MCP Architecture Server Documentation',
+    type: 'system',
+    keywords: ['mcp', 'architecture', 'server', 'smart', 'discovery', 'templates', 'cross-reference'],
+    description: 'Documentation for the intelligent architectural document management system'
   }
 };
 
@@ -304,8 +297,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             type: {
               type: 'string',
-              description: 'Filter by document type (index, catalogue, guide, protocols, system)',
-              enum: ['index', 'catalogue', 'guide', 'protocols', 'system', 'all']
+              description: 'Filter by document type (index, protocols, system)',
+              enum: ['index', 'protocols', 'system', 'all']
             },
           },
         },
@@ -380,6 +373,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['type'],
         },
       },
+      {
+        name: 'help',
+        description: 'Get comprehensive documentation for all architecture functions',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      }
     ],
   };
 });
@@ -395,7 +396,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           return {
             content: [{
               type: 'text',
-              text: `No architectural documents found for query: "${query}"\n\nAvailable document types: index, catalogue, guide, protocols, system\n\nTry broader terms like "protocol", "system", "project", or "architecture"`
+              text: `No architectural documents found for query: "${query}"\n\nAvailable document types: index, protocols, system\n\nTry broader terms like "protocol", "system", "project", or "architecture"`
             }]
           };
         }
@@ -435,8 +436,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         for (const [category, categoryDocs] of Object.entries(categorized)) {
           const emoji = {
             'index': '📚',
-            'catalogue': '📁', 
-            'guide': '🔔',
             'protocols': '📋',
             'system': '⚙️'
           }[category] || '📄';
@@ -601,6 +600,171 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
       
+      case 'help': {
+        const helpText = `
+# 🏗️ Architecture MCP Server - Intelligent Document Management
+
+## Purpose
+MCP server for intelligent architectural document management, discovery, and consistency maintenance. Provides smart document discovery, cross-referencing, and template-based document creation for architectural documentation.
+
+## Available Tools
+
+### arch_find_document 💡
+Smart architectural document discovery by topic, keyword, or purpose:
+- **query**: Search query (topic, keyword, or purpose)
+- Uses intelligent matching to find relevant architectural documents
+- Searches across document titles, content, and metadata
+- Returns prioritized results based on relevance and document quality
+
+### arch_list_architecture
+List all architectural documents with structured overview:
+- **type**: Filter by document type (index | protocols | system | all, optional)
+- Provides comprehensive catalog of all architectural documentation
+- Shows document hierarchy and organizational structure
+- Includes metadata about document status and relationships
+
+### arch_cross_reference
+Show relationships and references between architectural documents:
+- **docId**: Document ID to analyze cross-references for
+- Maps connections between related architectural documents
+- Identifies dependencies and reference patterns
+- Helps understand document ecosystem and relationships
+
+### arch_get_document
+Read the full content of a specific architectural document:
+- **docId**: Document ID to retrieve
+- Returns complete document content with formatting
+- Includes document metadata and relationship information
+- Provides access to detailed architectural specifications
+
+### arch_create_from_template
+Create new architectural document from template:
+- **type**: Document template type (protocol | system)
+- **title**: Document title
+- **description**: Brief description of the document purpose
+- **location**: Relative path where to create the document (e.g., "protocols/New Protocol.md")
+- Creates properly structured architectural documents
+- Ensures consistency with established documentation standards
+
+### arch_get_template
+Get a document template for creating new architectural documents:
+- **type**: Template type to retrieve (protocol | system)
+- Returns template structure and formatting guidelines
+- Provides standardized starting point for new documents
+- Ensures consistency across architectural documentation
+
+## Document Types and Organization
+
+### Index Documents
+- **Master Architecture Index**: Central navigation and system overview
+- **Component Indexes**: Specialized indexes for different system areas
+- **Cross-Reference Maps**: Visual representations of document relationships
+- **Navigation Guides**: Structured pathways through architectural documentation
+
+### Protocol Documents
+- **System Protocols**: Core operational procedures and standards
+- **Development Protocols**: Software development and engineering standards
+- **Quality Assurance Protocols**: Testing, validation, and quality control procedures
+- **Integration Protocols**: Standards for system integration and interoperability
+
+### System Documents
+- **Architecture Specifications**: Detailed system design and structure
+- **Component Documentation**: Individual system component specifications
+- **Interface Definitions**: API and interface specifications
+- **Configuration Guides**: System setup and configuration documentation
+
+## Intelligent Discovery Features
+
+### Smart Search Algorithm
+- **Semantic Matching**: Understanding of architectural concepts and relationships
+- **Context Awareness**: Considers current work context for relevant suggestions
+- **Fuzzy Matching**: Handles variations in terminology and phrasing
+- **Relevance Ranking**: Prioritizes results based on multiple quality factors
+
+### Cross-Reference Analysis
+- **Dependency Mapping**: Identifies document dependencies and relationships
+- **Impact Analysis**: Shows which documents are affected by changes
+- **Reference Validation**: Ensures document links and references are valid
+- **Consistency Checking**: Identifies potential inconsistencies between documents
+
+### Template System
+- **Structured Templates**: Standardized formats for different document types
+- **Metadata Integration**: Automatic metadata generation and management
+- **Consistency Enforcement**: Ensures adherence to documentation standards
+- **Version Control**: Integration with version control for document tracking
+
+## Workflow Integration
+
+### Document Discovery Workflow
+1. **arch_find_document** - Search for relevant architectural documents
+2. **arch_cross_reference** - Understand document relationships
+3. **arch_get_document** - Read detailed document content
+4. **arch_list_architecture** - Browse complete document catalog
+
+### Document Creation Workflow
+1. **arch_get_template** - Get appropriate template for new document
+2. **arch_create_from_template** - Create new document from template
+3. **arch_cross_reference** - Establish relationships with existing documents
+4. **arch_list_architecture** - Verify document integration
+
+### Architecture Maintenance Workflow
+1. **arch_list_architecture** - Review complete documentation structure
+2. **arch_cross_reference** - Analyze document relationships and dependencies
+3. **arch_find_document** - Locate documents needing updates
+4. **arch_create_from_template** - Create new supporting documentation
+
+## Use Cases
+
+### System Understanding
+- **New Team Member Onboarding**: Discover relevant architectural documentation
+- **Component Research**: Find documentation for specific system components
+- **Integration Planning**: Understand system interfaces and dependencies
+- **Troubleshooting**: Locate relevant diagnostic and troubleshooting guides
+
+### Documentation Management
+- **Document Organization**: Maintain structured architectural documentation
+- **Consistency Maintenance**: Ensure documentation follows established standards
+- **Gap Identification**: Find areas lacking adequate documentation
+- **Reference Management**: Maintain accurate cross-references between documents
+
+### Development Support
+- **Design Documentation**: Access architectural specifications and design decisions
+- **Implementation Guidance**: Find protocols and standards for development work
+- **Quality Assurance**: Access testing and validation documentation
+- **Change Management**: Understand impact of proposed changes
+
+## Quality Assurance Features
+
+### Document Validation
+- **Structure Validation**: Ensures documents follow established templates
+- **Reference Validation**: Verifies all cross-references are valid and current
+- **Metadata Validation**: Ensures proper document categorization and tagging
+- **Content Validation**: Checks for completeness and consistency
+
+### Consistency Maintenance
+- **Standard Enforcement**: Ensures adherence to documentation standards
+- **Cross-Reference Management**: Maintains accurate document relationships
+- **Version Synchronization**: Keeps related documents synchronized
+- **Quality Metrics**: Tracks documentation quality and completeness
+
+## Benefits
+- **Improved Discoverability**: Smart search makes architectural knowledge easily findable
+- **Consistency Assurance**: Templates and validation ensure documentation quality
+- **Relationship Clarity**: Cross-referencing reveals document connections and dependencies
+- **Efficient Creation**: Templates accelerate new document creation
+- **Knowledge Preservation**: Systematic organization preserves architectural knowledge
+- **Team Collaboration**: Standardized documentation improves team communication
+
+The Architecture server transforms architectural documentation from a collection of files into an intelligent, interconnected knowledge system that actively supports system understanding and development.
+`;
+        return {
+          content: [{
+            type: 'text',
+            text: helpText
+          }]
+        };
+      }
+      
       default:
         throw new Error(`Unknown tool: ${request.params.name}`);
     }
@@ -619,4 +783,4 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 const transport = new StdioServerTransport();
 server.connect(transport);
 console.error('🏗️ mcp-architecture server running on stdio');
-console.error('💡 Architectural document management and discovery tools ready');
+console.error('💡 Architectural document management and discovery tools ready - CORRECTED REGISTRY');
