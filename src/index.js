@@ -25,8 +25,10 @@ const server = new Server(
 const OBSIDIAN_VAULT_PATH = '/Users/bard/Code/claude-brain/data/BrainVault';
 const ARCHITECTURE_FOLDER = path.join(OBSIDIAN_VAULT_PATH, 'Architecture');
 
-// CORRECTED Architecture document registry - removed missing documents
+// COMPREHENSIVE Architecture document registry - Updated 2026-01-14
+// This serves as the "where is everything" reference for the AI assistant
 const ARCHITECTURAL_DOCS = {
+  // === INDEX DOCUMENTS ===
   'master-architecture-index': {
     path: 'Architecture/Master Architecture Index.md',
     title: 'Master Architecture Index',
@@ -41,12 +43,473 @@ const ARCHITECTURAL_DOCS = {
     keywords: ['protocols', 'operational', 'procedures', 'workflows', 'foundation'],
     description: 'Registry of all operational and system protocols with foundation protocol coverage'
   },
+
+  // === SYSTEM LOCATION REFERENCES ===
+  'system-paths': {
+    path: null,  // Virtual document - content is hardcoded
+    title: 'System Paths Reference',
+    type: 'system',
+    keywords: ['paths', 'locations', 'directories', 'files', 'where', 'find'],
+    description: 'Critical file system locations for all major systems',
+    content: `# System Paths Reference
+
+## Project Root
+- **All Projects**: /Users/bard/Code/
+
+## Protocol System
+- **Protocol MCP Server**: /Users/bard/Code/mcp-protocols/
+- **Protocol Source Files**: /Users/bard/Code/mcp-protocols/src/protocols/foundation/
+- **Protocol Registry**: /Users/bard/Code/mcp-protocols/src/registry.js
+- **Access via MCP**: mikey_protocol_list, mikey_protocol_read <id>
+
+## Brain System
+- **Brain Manager**: /Users/bard/Code/mcp-brain-manager/
+- **Brain Database**: /Users/bard/Code/Claude_Data/brain/brain.db
+- **Brain Init V5**: /Users/bard/Code/claude-brain/brain_init_v5_working.js
+
+## Architecture System
+- **Architecture Server**: /Users/bard/Code/mcp-architecture/
+- **This File**: /Users/bard/Code/mcp-architecture/src/index.js
+
+## Documentation
+- **Papers & Docs**: /Users/bard/Code/docs/papers/
+- **Obsidian Vault**: /Users/bard/Documents/Obsidian/
+
+## MCP Tools Directory
+All MCP tools follow the pattern: /Users/bard/Code/mcp-<name>/
+- mcp-protocols - Protocol system
+- mcp-brain-manager - Brain/context management
+- mcp-architecture - This architecture server
+- mcp-continuation-notes - Session handoff
+- mcp-protocol-engine - Protocol execution engine
+
+## Configuration
+- **Claude Desktop Config**: ~/.claude/claude_desktop_config.json
+- **MCP Server Configs**: Within each mcp-* project
+`
+  },
+
+  'mcp-tools-registry': {
+    path: null,
+    title: 'MCP Tools Registry',
+    type: 'system',
+    keywords: ['mcp', 'tools', 'servers', 'registry', 'list'],
+    description: 'Complete list of all MCP tools and their purposes',
+    content: `# MCP Tools Registry
+
+## Core System Tools
+
+### mikey-brain (mcp-brain-manager)
+**Purpose**: Memory, state management, and project context
+**Key Tools**:
+- mikey_remember / mikey_recall - Persistent memory
+- mikey_state_get / mikey_state_set - State management
+- mikey_create_project - Create new projects (GRADUATED PROTOCOL)
+- mikey_switch_project - Project context switching
+
+### mikey-protocols (mcp-protocols)
+**Purpose**: Protocol access and management
+**Key Tools**:
+- mikey_protocol_list - List all protocols
+- mikey_protocol_read <id> - Read protocol content
+- mikey_protocol_search <query> - Search protocols
+- mikey_protocol_triggers <situation> - Find relevant protocols
+
+### mcp-architecture (this server)
+**Purpose**: System documentation and discovery
+**Key Tools**:
+- arch_find_document - Smart document search
+- arch_list_architecture - List all docs
+- arch_get_document - Read document content
+
+### mcp-continuation-notes
+**Purpose**: Session handoff between conversations
+**Key Tools**:
+- continuation_write - Write handoff note
+- continuation_read_with_staleness - Read with freshness check
+- continuation_check_handoff - Check for existing note
+
+## Utility Tools
+
+### filesystem-enhanced - File operations
+### git - Git operations
+### database - SQLite operations
+### system - System commands
+### random - Random generation
+### smalledit - sed/awk editing
+
+## Specialized Tools
+
+### mikey-manager - Project workflow management
+### protocol-engine - Protocol execution
+### contemplation - Background processing
+### vision - Screenshot/camera analysis
+### elvis - Ollama delegation
+
+## Tool Naming Convention
+All custom tools use \`mikey_\` prefix to avoid collisions.
+`
+  },
+
+  'protocol-system-guide': {
+    path: null,
+    title: 'Protocol System Guide',
+    type: 'protocols',
+    keywords: ['protocol', 'create', 'edit', 'add', 'new', 'modify'],
+    description: 'How to work with the protocol system',
+    content: `# Protocol System Guide
+
+## Protocol Location
+All protocols are stored in: /Users/bard/Code/mcp-protocols/src/protocols/foundation/
+
+## Protocol Structure
+Each protocol is a JavaScript module exporting:
+- id: Unique identifier (kebab-case)
+- name: Human-readable name
+- version: Semantic version
+- tier: 0-3 (0=meta, 1=critical, 2=foundation, 3=task-specific)
+- purpose: One-line description
+- triggers: Array of trigger conditions
+- status: 'active' | 'draft' | 'deprecated'
+- content: Full markdown content
+
+## Adding a New Protocol
+1. Create file: /Users/bard/Code/mcp-protocols/src/protocols/foundation/<id>.js
+2. Export protocol object with all required fields
+3. Add import to registry.js
+4. Add to PROTOCOLS object in registry.js
+5. Update MASTER_PROTOCOL_INDEX in registry.js
+6. Restart mcp-protocols server (restart Claude Code)
+
+## Accessing Protocols
+- List all: mikey_protocol_list
+- Read one: mikey_protocol_read <id>
+- Search: mikey_protocol_search <query>
+- Find by situation: mikey_protocol_triggers <situation>
+
+## Current Protocols (17)
+- protocol-selection (Tier 0)
+- error-recovery (Tier 2)
+- user-communication (Tier 2)
+- task-approach (Tier 2)
+- information-integration (Tier 2)
+- progress-communication (Tier 2)
+- naming-linter (Tier 2)
+- active-inference (Tier 1)
+- protocol-lifecycle (Tier 1)
+- protocol-writing (Tier 1)
+- architecture-update (Tier 1) - Keep docs synchronized with system changes
+- protocol-graduation (Tier 1) - Convert text protocols to programmatic tools
+- protocol-error-correction (Tier 1) - Fix protocols when they fail
+- mcp-permissions (Tier 2) - Configure MCP tool auto-approval
+- document-writing (Tier 2) - General writing workflow
+- medium-article (Tier 3)
+- create-project (Tier 3) - Points to mikey_create_project tool
+
+## Graduated Protocols
+Some protocols have "graduated" to tools. The protocol still exists
+but points to a tool for execution. Example: create-project protocol
+points to mikey_create_project tool.
+`
+  },
+
+  'project-creation-guide': {
+    path: null,
+    title: 'Project Creation Guide',
+    type: 'system',
+    keywords: ['project', 'create', 'new', 'setup', 'github', 'repo'],
+    description: 'How to create new projects using the system',
+    content: `# Project Creation Guide
+
+## Quick Start
+Use the mikey_create_project tool:
+
+mikey_create_project({
+  projectName: "my-project",
+  projectType: "mcp-tool",  // or: web-app, cli-tool, library, api, general
+  description: "What it does",
+  visibility: "public",     // or: private
+  license: "MIT"            // or: Apache-2.0, GPL-3.0, ISC, None
+})
+
+## Prerequisites
+1. Git installed: git --version
+2. GitHub CLI: gh --version
+3. GitHub auth: gh auth status
+4. SSH keys recommended: ~/.ssh/id_ed25519.pub
+
+## Project Location
+All projects go in: /Users/bard/Code/<project-name>/
+
+## What Gets Created
+- Directory structure (src/, tests/, docs/)
+- Git repository initialized
+- GitHub remote created
+- README.md, LICENSE, .gitignore
+- CI/CD configuration
+- Testing setup
+
+## Protocol Reference
+See: mikey_protocol_read create-project
+
+## Tool Implementation
+Source: /Users/bard/Code/mcp-brain-manager/src/index.ts
+Look for: mikey_create_project
+`
+  },
+
   'architecture-server-docs': {
     path: 'Architecture/MCP Architecture Server Documentation.md',
     title: 'MCP Architecture Server Documentation',
     type: 'system',
     keywords: ['mcp', 'architecture', 'server', 'smart', 'discovery', 'templates', 'cross-reference'],
     description: 'Documentation for the intelligent architectural document management system'
+  },
+
+  'protocol-triggers': {
+    path: null,
+    title: 'Protocol Triggers Quick Reference',
+    type: 'protocols',
+    keywords: ['trigger', 'when', 'activate', 'use', 'which', 'protocol', 'select'],
+    description: 'Quick reference for when to activate each protocol - like skill descriptions',
+    content: `# Protocol Triggers Quick Reference
+
+This document acts like skill descriptions - helping you know WHEN to use each protocol.
+
+---
+
+## Tier 0: Meta Protocol (Always First)
+
+### protocol-selection
+**Use when**: Starting ANY new task
+**Triggers**:
+- At the start of any new task
+- When beginning work on a user request
+- Before executing any significant action
+- When context changes significantly
+
+---
+
+## Tier 1: Critical System Protocols
+
+### active-inference
+**Use when**: Reflecting on completed work
+**Triggers**:
+- After completing any non-trivial task
+- When a task fails or produces unexpected results
+- When user expresses surprise (positive or negative)
+- When explicitly asked to reflect or improve
+- After significant debugging sessions
+
+### protocol-lifecycle
+**Use when**: Managing protocols themselves
+**Triggers**:
+- When considering whether to create a new protocol
+- When a protocol seems too complex for text execution
+- When usage patterns suggest optimization
+- Before major protocol system changes
+
+### protocol-writing
+**Use when**: Creating new protocols
+**Triggers**:
+- User requests a new protocol
+- Identifying a repeating pattern that should be codified
+- When workflow standardization would help
+- After repeated similar tasks suggest a pattern
+
+### architecture-update
+**Use when**: System has been modified
+**Triggers**:
+- Created a new project or MCP tool
+- Moved or relocated a system component
+- Changed file paths or directory structure
+- Added a new MCP server
+- Deprecated or removed a system
+- Changed how a system is accessed
+- Modified protocol registry
+- Updated system configuration paths
+**Key principle**: Living documentation - stale docs cause future errors
+
+### protocol-graduation
+**Use when**: Converting protocol to tool
+**Triggers**:
+- Protocol is used frequently (weekly or more)
+- Protocol execution is consistent with little variation
+- Protocol has multiple steps prone to error
+- User suggests a protocol should become a tool
+- Reviewing protocol usage patterns
+**Key principle**: Tools make execution deterministic - less uncertainty
+
+### protocol-error-correction
+**Use when**: A protocol failed or was wrong
+**Triggers**:
+- Protocol execution produced wrong result
+- Protocol was missing a step
+- Protocol had incorrect information
+- User corrected AI behavior
+- Discovered gap in existing protocol
+**Key principle**: Fail once, fix permanently - update protocol immediately
+
+---
+
+## Tier 2: Foundation Operational Protocols
+
+### mcp-permissions
+**Use when**: Configuring MCP tool permissions
+**Triggers**:
+- Adding a new MCP server
+- Tool requires frequent permission clicks
+- Read-only tools should auto-approve
+- Configuring Claude settings.local.json
+- New tools added to existing server
+**Key principle**: Read-only auto-approve, write tools require approval
+
+### document-writing
+**Use when**: Writing any substantial document
+**Triggers**:
+- User asks to write a document or paper
+- Creating technical documentation
+- Writing explanatory content
+- Drafting any substantial text
+- User says "write", "draft", "document"
+**Key principle**: Ask destination and format BEFORE writing
+
+### error-recovery
+**Use when**: Something goes wrong
+**Triggers**:
+- Tool returns error, failure, or unexpected response
+- File/path access fails (not found, permission denied)
+- User request is unclear or has multiple interpretations
+- Conflicting information from multiple sources
+- Knowledge gaps impact response quality
+- System limitations prevent standard approach
+
+### user-communication
+**Use when**: Interacting with the user
+**Triggers**:
+- Any direct user interaction or question
+- User provides feedback (positive or negative)
+- Need to explain something complex
+- Delivering bad news or limitations
+- Responding to emotional context
+
+### task-approach
+**Use when**: Figuring out what to do
+**Triggers**:
+- Any user request or question (before proceeding)
+- User request is ambiguous or has multiple interpretations
+- Task seems simple but might have hidden complexity
+- User's stated request might differ from actual need
+- Before making significant decisions
+
+### information-integration
+**Use when**: Combining multiple sources
+**Triggers**:
+- Request requires multiple sources (Brain + Obsidian + Web + Files)
+- Conflicting information detected between sources
+- Need comprehensive response from various data
+- Reconciling old and new information
+- Cross-referencing different systems
+
+### progress-communication
+**Use when**: Task is taking a while
+**Triggers**:
+- Task estimated to take >30 seconds of processing
+- Multiple sequential tool calls required (>3 tool calls)
+- Complex multi-step processes underway
+- User might wonder what's happening
+- Background work running
+
+### naming-linter
+**Use when**: Creating or modifying MCP tools
+**Triggers**:
+- Creating a new MCP server
+- Adding new tools to an existing server
+- Renaming tools or functions
+- Before committing MCP tool changes
+- Reviewing MCP tool PRs
+
+---
+
+## Tier 3: Task-Specific Protocols
+
+### medium-article
+**Use when**: Writing for Medium
+**Triggers**:
+- User wants to write a Medium article
+- User mentions publishing to Medium
+- Creating content for blog/publication
+- Need Medium-compatible formatting
+
+### create-project (GRADUATED TO TOOL)
+**Use when**: Setting up a new codebase
+**Triggers**:
+- User says "create a new project"
+- User says "set up a new repo"
+- User says "start a new project"
+- User wants to scaffold a new application
+**Implementation**: Use mikey_create_project tool instead of manual steps
+
+---
+
+## Quick Decision Tree
+
+\`\`\`
+Is this the start of a task?
+  YES → protocol-selection
+
+Did something fail/error?
+  YES → error-recovery
+
+Am I interacting with the user?
+  YES → user-communication
+
+Is the request unclear?
+  YES → task-approach
+
+Do I need multiple sources?
+  YES → information-integration
+
+Is this taking a while?
+  YES → progress-communication
+
+Am I creating/modifying MCP tools?
+  YES → naming-linter
+
+Did I just finish a significant task?
+  YES → active-inference
+
+Am I creating a new protocol?
+  YES → protocol-writing
+
+Am I writing for Medium?
+  YES → medium-article
+
+Am I creating a new project?
+  YES → use mikey_create_project tool
+
+Did I just create/move/modify a system?
+  YES → architecture-update
+
+Did a protocol fail or produce wrong results?
+  YES → protocol-error-correction
+
+Am I adding an MCP server or configuring permissions?
+  YES → mcp-permissions
+
+Am I writing a document/paper?
+  YES → document-writing (ask destination first!)
+\`\`\`
+
+---
+
+## Access Commands
+
+- List all protocols: \`mikey_protocol_list\`
+- Read specific protocol: \`mikey_protocol_read <id>\`
+- Find by situation: \`mikey_protocol_triggers "<description>"\`
+- Search protocols: \`mikey_protocol_search "<query>"\`
+`
   }
 };
 
@@ -444,7 +907,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           
           categoryDocs.forEach(doc => {
             output += `### ${doc.title}\n`;
-            output += `📍 **Location**: \`${doc.path}\`\n`;
+            if (doc.path) {
+              output += `📍 **Location**: \`${doc.path}\`\n`;
+            } else {
+              output += `📍 **Location**: Virtual (hardcoded in architecture server)\n`;
+            }
             output += `🎯 **Purpose**: ${doc.description}\n`;
             output += `🏷️ **Keywords**: ${doc.keywords.join(', ')}\n`;
             output += `🆔 **ID**: \`${doc.id}\`\n\n`;
@@ -510,7 +977,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       
       case 'arch_get_document': {
         const { docId } = request.params.arguments;
-        
+
         if (!ARCHITECTURAL_DOCS[docId]) {
           return {
             content: [{
@@ -519,8 +986,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             }]
           };
         }
-        
+
         const doc = ARCHITECTURAL_DOCS[docId];
+
+        // Handle virtual documents (content stored in registry, not in files)
+        if (doc.content) {
+          return {
+            content: [{
+              type: 'text',
+              text: `# 📄 ${doc.title}\n\n**Type**: ${doc.type}\n**Description**: ${doc.description}\n\n---\n\n${doc.content}`
+            }]
+          };
+        }
+
+        // Handle file-based documents
         try {
           const content = await readObsidianFile(doc.path);
           return {
