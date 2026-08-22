@@ -443,7 +443,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'arch_help',
+        name: 'help',
         description: 'Get comprehensive documentation for all architecture functions',
         inputSchema: {
           type: 'object',
@@ -724,7 +724,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
       
-      case 'arch_help': {
+      case 'help': {
         const helpText = `
 # 🏗️ Architecture MCP Server - Intelligent Document Management
 
