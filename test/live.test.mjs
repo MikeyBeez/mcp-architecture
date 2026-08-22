@@ -67,3 +67,49 @@ describe('generated documents match the running system', () => {
       'every path line must carry a verdict');
   });
 });
+
+// Added 2026-08-22, when the last three documents stopped being file-backed.
+describe('no document is backed by a file that is missing or stale', () => {
+  test('every registered document is generated, none points at a vault file', () => {
+    const src = fs.readFileSync(path.join(os.homedir(), 'Code/mcp-architecture/src/index.js'), 'utf8');
+    const registry = src.slice(src.indexOf('ARCHITECTURAL_DOCS'), src.indexOf("case 'arch_find_document'"));
+    const paths = [...registry.matchAll(/^\s*path:\s*(null|'[^']*')/gm)].map(m => m[1]);
+    assert.ok(paths.length >= 8, `expected at least 8 documents, found ${paths.length}`);
+    const filed = paths.filter(p => p !== 'null');
+    assert.deepEqual(filed, [],
+      `these documents still name a vault file: ${filed.join(', ')}. Two of the three that ` +
+      `did on 2026-08-22 pointed at files that DID NOT EXIST, and the third at one a year old, ` +
+      `while the registry advertised all three.`);
+  });
+
+  test('the listing no longer calls generated documents hardcoded', () => {
+    const src = fs.readFileSync(path.join(os.homedir(), 'Code/mcp-architecture/src/index.js'), 'utf8');
+    assert.ok(!src.includes('Virtual (hardcoded in architecture server)'),
+      'the label stopped being true on 2026-08-20 when the documents became derived');
+  });
+
+  test('the three new generators report the real counts', () => {
+    const require2 = createRequire(import.meta.url);
+    const live = require2('../src/live.js');
+    const cfg = JSON.parse(fs.readFileSync(
+      path.join(os.homedir(), 'Library/Application Support/Claude/claude_desktop_config.json'), 'utf8'));
+    const nServers = Object.keys(cfg.mcpServers || {}).length;
+    const nProtocols = fs.readdirSync(path.join(os.homedir(), 'Code/mcp-protocols/protocols'))
+      .filter(f => f.endsWith('.md')).length;
+
+    assert.match(live.masterArchitectureIndex(), new RegExp(`${nServers} MCP servers wired`));
+    assert.match(live.masterArchitectureIndex(), new RegExp(`${nProtocols} protocols live`));
+    assert.match(live.protocolIndex(), new RegExp(`\\*\\*${nProtocols} protocols`));
+    // The server's own document must know about a tool added to the server.
+    assert.match(live.architectureServerDocs(), /arch_fill_template/);
+  });
+
+  test('the server documentation states its own limits rather than only its features', () => {
+    const require2 = createRequire(import.meta.url);
+    const live = require2('../src/live.js');
+    const doc = live.architectureServerDocs();
+    assert.match(doc, /cannot see the account preferences|cannot tell you the running system is a good idea/);
+    assert.match(doc, /Do not use it for a registry/,
+      'the judgement-vs-registry distinction is the reason these are generated at all');
+  });
+});

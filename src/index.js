@@ -32,23 +32,25 @@ const ARCHITECTURE_FOLDER = path.join(OBSIDIAN_VAULT_PATH, 'Architecture');
 const ARCHITECTURAL_DOCS = {
   // === INDEX DOCUMENTS ===
   'master-architecture-index': {
-    path: 'Architecture/Master Architecture Index.md',
+    path: null,   // generated 2026-08-22 -- the file it named was a year old or absent
     title: 'Master Architecture Index',
     type: 'index',
     keywords: ['architecture', 'systems', 'overview', 'index', 'master', 'integration', 'ecosystem'],
-    description: 'Central registry of all architectural systems with complete integration status'
+    description: 'Central registry of all architectural systems with complete integration status',
+    get content() { return live.masterArchitectureIndex(); }
   },
   'protocols-index': {
-    path: 'protocols/Master Protocol Index.md',
+    path: null,   // generated 2026-08-22 -- the file it named was a year old or absent
     title: 'Master Protocol Index',
     type: 'protocols',
     keywords: ['protocols', 'operational', 'procedures', 'workflows', 'foundation'],
-    description: 'Registry of all operational and system protocols with foundation protocol coverage'
+    description: 'Registry of all operational and system protocols with foundation protocol coverage',
+    get content() { return live.protocolIndex(); }
   },
 
   // === SYSTEM LOCATION REFERENCES ===
   'system-paths': {
-    path: null,  // Virtual document - content is hardcoded
+    path: null,  // generated from the running system, not stored
     title: 'System Paths Reference',
     type: 'system',
     keywords: ['paths', 'locations', 'directories', 'files', 'where', 'find'],
@@ -84,11 +86,12 @@ const ARCHITECTURAL_DOCS = {
   },
 
   'architecture-server-docs': {
-    path: 'Architecture/MCP Architecture Server Documentation.md',
+    path: null,   // generated 2026-08-22 -- the file it named was a year old or absent
     title: 'MCP Architecture Server Documentation',
     type: 'system',
     keywords: ['mcp', 'architecture', 'server', 'smart', 'discovery', 'templates', 'cross-reference'],
-    description: 'Documentation for the intelligent architectural document management system'
+    description: 'Documentation for the intelligent architectural document management system',
+    get content() { return live.architectureServerDocs(); }
   },
 
   'protocol-triggers': {
@@ -513,7 +516,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             if (doc.path) {
               output += `📍 **Location**: \`${doc.path}\`\n`;
             } else {
-              output += `📍 **Location**: Virtual (hardcoded in architecture server)\n`;
+              output += `📍 **Location**: generated from the running system on every call\n`;
             }
             output += `🎯 **Purpose**: ${doc.description}\n`;
             output += `🏷️ **Keywords**: ${doc.keywords.join(', ')}\n`;
