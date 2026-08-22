@@ -64,7 +64,16 @@ function requiredSections(template) {
 function sections(doc) {
   const out = {};
   let current = null, buf = [];
+  let inFence = false;
   for (const line of String(doc).split(/\r?\n/)) {
+    // A fenced code block can contain lines beginning with '#'. Those are shell
+    // comments, not headings. The first real document this tool produced had a
+    // Usage Examples block whose "# prints BOTH CONTRACTS HOLD" comment was read as
+    // an H1, which truncated the section and got it refused as too thin. The check
+    // was right to be suspicious and wrong about why -- exactly the kind of false
+    // refusal that teaches people to bypass a check.
+    if (/^\s*(```|~~~)/.test(line)) { inFence = !inFence; if (current !== null) buf.push(line); continue; }
+    if (inFence) { if (current !== null) buf.push(line); continue; }
     const m = /^(#{1,6})\s+(.+?)\s*$/.exec(line);
     if (m) {
       if (current !== null) out[current] = buf.join('\n').trim();
@@ -93,12 +102,34 @@ function bodyOf(doc, heading) {
 }
 
 /**
+ * Remove the trailing metadata footer -- a final "---" followed only by italic
+ * one-line fields (*Status: ...*, *Location: ...*, *Created: ...*).
+ *
+ * It has to come off BEFORE the echoed-scaffolding check, and not as an exception
+ * inside it. That footer is boilerplate: it is byte-identical between template and
+ * output by design, because the tool fills it rather than the model. Judging the
+ * model on it flagged a Maintenance section that had been written correctly.
+ */
+function stripFooter(text) {
+  const lines = String(text).split(/\r?\n/);
+  let i = lines.length - 1;
+  while (i >= 0 && lines[i].trim() === '') i--;
+  let seen = 0;
+  while (i >= 0 && /^\*[^*]+:.*\*$/.test(lines[i].trim())) { i--; seen++; }
+  while (i >= 0 && lines[i].trim() === '') i--;
+  if (seen > 0 && i >= 0 && /^-{3,}$/.test(lines[i].trim())) return lines.slice(0, i).join('\n').trimEnd();
+  return String(text).trimEnd();
+}
+
+/**
  * The check. Structural, mechanical, and derived from the template -- not a judgment
  * about whether the writing is good, which is a thing neither this server nor ornith
  * can assess. It answers exactly one question: did every section the template demands
  * come back with content of its own?
  */
-function validate(doc, template, { minChars = 40 } = {}) {
+function validate(docRaw, templateRaw, { minChars = 40 } = {}) {
+  const doc = stripFooter(docRaw);
+  const template = stripFooter(templateRaw);
   const required = requiredSections(template);
   const placeholders = placeholderBodies(template);
   const missing = [], unchanged = [], thin = [], echoed = [];
@@ -166,19 +197,39 @@ function buildPrompt(template, { title, description, brief }) {
  * Returns { ok, content, check, attempts, tokens, tps, error }.
  * Never throws for a model or validation failure -- a refusal is a result.
  */
-async function fillTemplate(template, { title, description, brief, maxAttempts = 2, minChars = 40 } = {}) {
+function resolveTemplate(text, { title, description, location, status } = {}) {
+  const date = new Date().toISOString().split('T')[0];
+  return String(text)
+    .replace(/\{title\}/g, title || '')
+    .replace(/\{description\}/g, description || '')
+    .replace(/\{date\}/g, date)
+    .replace(/\{status\}/g, status || 'Active')
+    .replace(/\{location\}/g, location || '(not yet filed)');
+}
+
+async function fillTemplate(template, { title, description, brief, location, status, maxAttempts = 2, minChars = 40 } = {}) {
   if (!brief || !String(brief).trim()) {
     return { ok: false, error: 'no brief supplied. This tool fills a template from material you provide; it will not invent the content.' };
   }
+  // The template carries {date}, {status} and {location} in its footer, and nothing
+  // was substituting them -- so the model echoed them verbatim, the footer stayed
+  // byte-identical to the template's, and the echoed-scaffolding check fired on a
+  // section the model had actually written correctly. Resolve them FIRST, and
+  // validate against the resolved template, so the check judges what the model was
+  // responsible for and nothing else. Same fields arch_create_from_template fills.
+  const resolved = resolveTemplate(template, { title, description, location, status });
+
   const { ask } = await loadOrnith();
-  const prompt = buildPrompt(template, { title, description, brief });
+  const prompt = buildPrompt(resolved, { title, description, brief });
 
   let last = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const r = ask(prompt, { max_tokens: 4096, temperature: 0.2, timeout_ms: 240000 });
     if (!r.ok) return { ok: false, attempts: attempt, error: r.error || 'model call failed' };
-    const doc = String(r.content || '').replace(/^```(?:markdown)?\s*|\s*```$/g, '').trim();
-    const check = validate(doc, template, { minChars });
+    const doc = resolveTemplate(
+      String(r.content || '').replace(/^```(?:markdown)?\s*|\s*```$/g, '').trim(),
+      { title, description, location, status });
+    const check = validate(doc, resolved, { minChars });
     last = { doc, check, tokens: r.tokens, tps: r.tps };
     if (check.passed) {
       return { ok: true, content: doc, check, attempts: attempt, tokens: r.tokens, tps: r.tps };
@@ -194,4 +245,4 @@ async function fillTemplate(template, { title, description, brief, maxAttempts =
   };
 }
 
-module.exports = { fillTemplate, validate, requiredSections, placeholderBodies, bodyOf, buildPrompt };
+module.exports = { fillTemplate, validate, requiredSections, placeholderBodies, bodyOf, buildPrompt, resolveTemplate, sections, stripFooter };

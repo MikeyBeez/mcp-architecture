@@ -17,7 +17,7 @@ import assert from 'node:assert';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { validate, requiredSections, bodyOf, buildPrompt } = require('../src/fill.js');
+const { validate, requiredSections, bodyOf, buildPrompt, resolveTemplate, stripFooter } = require('../src/fill.js');
 
 const TEMPLATE = `# {title}
 
@@ -154,5 +154,62 @@ describe('buildPrompt', () => {
   test('tells the model not to invent specifics the brief does not cover', () => {
     const p = buildPrompt(TEMPLATE, { title: 'T', description: 'D', brief: 'B' });
     assert.match(p, /Do not invent specifics/);
+  });
+});
+
+// Added 2026-08-22 after the first real document was REFUSED for two reasons that
+// were both defects in this file rather than in what the model wrote.
+describe('the two false refusals found on the first real document', () => {
+  test('a "#" comment inside a fenced code block is not a heading', () => {
+    const doc = `## 🚀 Usage Examples
+
+\`\`\`
+~/Code/harness/check-contracts.sh
+# prints BOTH CONTRACTS HOLD when all three checks pass
+# otherwise prints the failing check
+\`\`\`
+
+## 🔧 Maintenance
+
+Keep the rename record current.
+`;
+    const body = bodyOf(doc, '🚀 Usage Examples');
+    assert.ok(body.includes('check-contracts.sh'));
+    assert.ok(body.includes('otherwise prints the failing check'),
+      'the section was truncated at a shell comment read as an H1');
+    assert.ok(bodyOf(doc, '🔧 Maintenance').includes('rename record'),
+      'the heading after the fence must still be found');
+  });
+
+  test('resolveTemplate fills the footer the model should never have to write', () => {
+    const out = resolveTemplate('*Status: {status}*\n*Location: {location}*\n*Created: {date}*',
+      { location: 'Systems/x.md' });
+    assert.match(out, /Status: Active/);
+    assert.match(out, /Location: Systems\/x\.md/);
+    assert.doesNotMatch(out, /\{date\}/, 'the date placeholder survived');
+    assert.doesNotMatch(out, /\{status\}/);
+  });
+
+  test('the metadata footer is excluded from the check, resolved or not', () => {
+    // Originally written to pin a FALSE REFUSAL: the footer was byte-identical to
+    // the template because nothing filled it, and the echoed-scaffolding check read
+    // that as the model copying scaffolding. The fix was to strip the footer before
+    // validating rather than to special-case it inside the check, so both the
+    // resolved and unresolved forms are now excluded. This test asserts that.
+    const tmpl = '## 🔧 Maintenance\n\n- Regular maintenance tasks\n\n---\n\n*Status: {status}*\n';
+    const out  = '## 🔧 Maintenance\n\n- Regular maintenance tasks: keep the rename record current and extend coverage.\n\n---\n\n*Status: {status}*\n';
+    assert.equal(validate(out, tmpl).passed, true, 'unresolved footer must not be judged');
+    assert.equal(validate(resolveTemplate(out, {}), resolveTemplate(tmpl, {})).passed, true,
+      'resolved footer must not be judged either');
+  });
+
+  test('stripFooter removes only a real footer, never real content', () => {
+    const withFooter = 'body text\n\n---\n\n*Status: Active*\n*Created: 2026-08-22*\n';
+    assert.equal(stripFooter(withFooter), 'body text');
+    // A horizontal rule in the middle of a document is not a footer.
+    const midRule = 'first\n\n---\n\nsecond paragraph with real content\n';
+    assert.match(stripFooter(midRule), /second paragraph/);
+    // Italic lines that are not a footer, with no preceding rule, stay.
+    assert.match(stripFooter('body\n\n*this is emphasis: not metadata*\n'), /emphasis/);
   });
 });

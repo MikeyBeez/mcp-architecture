@@ -668,7 +668,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           return { content: [{ type: 'text',
             text: `Template type "${type}" not found. Available: ${Object.keys(TEMPLATES).join(', ')}` }] };
         }
-        const r = await fillTemplate(TEMPLATES[type], { title, description, brief });
+        const r = await fillTemplate(TEMPLATES[type], { title, description, brief, location });
 
         if (!r.ok) {
           // A refusal is a result, not an error. Say exactly which sections failed so
