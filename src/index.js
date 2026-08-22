@@ -331,7 +331,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'arch_find_document',
-        description: '💡 Smart architectural document discovery by topic, keyword, or purpose',
+        description: 'Find which architecture document answers a question, by topic or keyword. START HERE rather than reading code to work out how a system fits together -- that is what this server is for. Every document is DERIVED FROM THE RUNNING SYSTEM at the moment you ask, not read from a stored file, so it cannot be stale the way a checked-in document can. If it disagrees with a note or a README, this is the one that is current.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -345,7 +345,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'arch_list_architecture',
-        description: 'List all architectural documents with structured overview',
+        description: 'List every architecture document available, with what each covers. Use it when you do not yet know what question to ask. All of them are generated from live state when requested, so the list reflects what the system actually is right now.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -359,7 +359,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'arch_cross_reference',
-        description: 'Show relationships and references between architectural documents',
+        description: 'Show how the architecture documents reference each other. Useful for finding the piece you did not know to look for -- which protocol a server depends on, which document explains a component another one only names.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -373,7 +373,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'arch_get_document',
-        description: 'Read the full content of a specific architectural document',
+        description: 'Read one architecture document in full, generated fresh from the running system. Prefer this over reading source files to answer "how does this fit together" or "what is this for" -- it is faster and it cannot drift. Read the source when you need to know how something WORKS internally; read this when you need to know what it IS and what it talks to.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -387,7 +387,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'arch_create_from_template',
-        description: 'Create new architectural document from template',
+        description: 'Create a new architecture document from a template. Use this ONLY for a JUDGMENT document -- a decision record, a plan, a rationale, something a person has to reason out. Never for a registry, an inventory, or anything listing what exists: those must be DERIVED from live state, or they rot exactly the way the six hardcoded documents here did before they were rewritten to generate themselves.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -429,7 +429,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'arch_get_template',
-        description: 'Get a document template for creating new architectural documents',
+        description: 'Get a blank template for a new architecture document. Same rule as arch_create_from_template: templates are for judgment documents, not for lists of what exists.',
         inputSchema: {
           type: 'object',
           properties: {
